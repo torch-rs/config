@@ -1,0 +1,9 @@
+[package]
+name = "config"
+version = "0.1.0"
+authors = ["Patrick Chan <patrickchan1999@gmail.com>"]
+
+[dependencies]
+fs2 = "*"
+serde = "1.0"
+serde_yaml = "0.7"
