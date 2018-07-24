@@ -7,6 +7,7 @@ pub trait Config {
 
     fn new(filename: String) -> Self;
     fn get(&self, key: String) -> Option<String>;
+    fn get_key_from_value(&self, value: String) -> Option<String>;
     fn set(&mut self, HashMap<String, String>);
     fn save(&self) -> Result<(), Error>; 
 

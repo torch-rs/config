@@ -53,6 +53,15 @@ impl Config for KeybindingsConfig {
         }
     }
 
+    fn get_key_from_value(&self, value: String) -> Option<String> {
+        for (key, val) in self.data.iter() {
+            if val.to_string() == value {
+                return Some(key.to_string());
+            }
+        }
+        None
+    }
+
     fn set(&mut self, new_data: HashMap<String, String>) {
         self.data = new_data;
     }
@@ -92,6 +101,7 @@ mod tests {
         assert_eq!(config.get(String::from("key3")), Some(String::from("value3")));
         assert_eq!(config.get(String::from("key4")), Some(String::from("value4")));
         assert_eq!(config.get(String::from("key5")), Some(String::from("value5")));
+        assert_eq!(config.get_key_from_value(String::from("value5")), Some(String::from("key5")));
     }
 
     #[test]
@@ -112,6 +122,7 @@ mod tests {
         assert_eq!(config.get(String::from("key3")), Some(String::from("value3")));
         assert_eq!(config.get(String::from("key4")), Some(String::from("value4")));
         assert_eq!(config.get(String::from("key5")), Some(String::from("value5")));
+        assert_eq!(config.get_key_from_value(String::from("value5")), Some(String::from("key5")));
         assert!(remove_file("keybindings_config.yaml").is_ok());
     }
 
