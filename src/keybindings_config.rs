@@ -87,11 +87,11 @@ mod tests {
         sample_config_data.insert(String::from("key4"), String::from("value4"));
         sample_config_data.insert(String::from("key5"), String::from("value5"));
         config.set(sample_config_data.clone());
-        assert_eq!(sample_config_data.get(&String::from("key1")), Some(&String::from("value1")));
-        assert_eq!(sample_config_data.get(&String::from("key2")), Some(&String::from("value2")));
-        assert_eq!(sample_config_data.get(&String::from("key3")), Some(&String::from("value3")));
-        assert_eq!(sample_config_data.get(&String::from("key4")), Some(&String::from("value4")));
-        assert_eq!(sample_config_data.get(&String::from("key5")), Some(&String::from("value5")));
+        assert_eq!(config.get(String::from("key1")), Some(String::from("value1")));
+        assert_eq!(config.get(String::from("key2")), Some(String::from("value2")));
+        assert_eq!(config.get(String::from("key3")), Some(String::from("value3")));
+        assert_eq!(config.get(String::from("key4")), Some(String::from("value4")));
+        assert_eq!(config.get(String::from("key5")), Some(String::from("value5")));
     }
 
     #[test]
@@ -106,12 +106,12 @@ mod tests {
         setup_config.set(sample_config_data.clone());
         assert!(setup_config.save().is_ok());
 
-        let _config = KeybindingsConfig::new(String::from("keybindings_config.yaml"));
-        assert_eq!(sample_config_data.get(&String::from("key1")), Some(&String::from("value1")));
-        assert_eq!(sample_config_data.get(&String::from("key2")), Some(&String::from("value2")));
-        assert_eq!(sample_config_data.get(&String::from("key3")), Some(&String::from("value3")));
-        assert_eq!(sample_config_data.get(&String::from("key4")), Some(&String::from("value4")));
-        assert_eq!(sample_config_data.get(&String::from("key5")), Some(&String::from("value5")));
+        let config = KeybindingsConfig::new(String::from("keybindings_config.yaml"));
+        assert_eq!(config.get(String::from("key1")), Some(String::from("value1")));
+        assert_eq!(config.get(String::from("key2")), Some(String::from("value2")));
+        assert_eq!(config.get(String::from("key3")), Some(String::from("value3")));
+        assert_eq!(config.get(String::from("key4")), Some(String::from("value4")));
+        assert_eq!(config.get(String::from("key5")), Some(String::from("value5")));
         assert!(remove_file("keybindings_config.yaml").is_ok());
     }
 
