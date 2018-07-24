@@ -1,3 +1,5 @@
+pub mod keybindings_config;
+
 use std::collections::HashMap;
 use std::io::Error;
 
