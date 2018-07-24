@@ -40,9 +40,9 @@ impl Config for KeybindingsConfig {
                 data.insert(String::from("execute-secondary-action"), String::from("Alt + ENTER"));
                 return KeybindingsConfig {
                     filename: filename,
-                    data: HashMap::new(),
+                    data: data,
                 }
-                }
+            }
         }
     }
 
