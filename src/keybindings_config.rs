@@ -32,12 +32,11 @@ impl Config for KeybindingsConfig {
             }
             Err(_e) =>  {
                 let mut data = HashMap::new();
-                data.insert(String::from("show-window"), String::from("Ctrl + SPACE"));
-                data.insert(String::from("hide-window"), String::from("ESCAPE"));
+                data.insert(String::from("close-window"), String::from("ESCAPE"));
                 data.insert(String::from("previous-option"), String::from("UP"));
                 data.insert(String::from("next-option"), String::from("DOWN"));
-                data.insert(String::from("execute-primary-action"), String::from("Enter"));
-                data.insert(String::from("execute-secondary-action"), String::from("Alt + ENTER"));
+                data.insert(String::from("execute-primary-action"), String::from("RETURN"));
+                data.insert(String::from("execute-secondary-action"), String::from("ALT + RETURN"));
                 return KeybindingsConfig {
                     filename: filename,
                     data: data,
