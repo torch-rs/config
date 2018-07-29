@@ -3,13 +3,10 @@ extern crate serde;
 extern crate serde_yaml;
 
 use self::fs2::FileExt;
-
 use Config;
 use std::collections::HashMap;
-use std::io;
 use std::fs::File;
-use std::io::Read;
-use std::io::Write;
+use std::io::{Error, ErrorKind, Read, Write};
 
 pub struct KeybindingsConfig<'c> {
     filename: &'c str,
@@ -65,12 +62,12 @@ impl<'c> Config<'c> for KeybindingsConfig<'c> {
         self.data = new_data;
     }
     
-    fn save(&self) -> Result<(), io::Error> {
+    fn save(&self) -> Result<(), Error> {
         let serialized = serde_yaml::to_string(&self.data).unwrap();
         let mut file = File::create(self.filename.clone()).unwrap();
         file.lock_exclusive().unwrap();
         if file.write_all(serialized.as_bytes()).is_err() {
-            return Err(io::Error::new(io::ErrorKind::Other, "Trouble saving to file"));
+            return Err(Error::new(ErrorKind::Other, "Trouble saving to file"));
         }
         Ok(())
     }
