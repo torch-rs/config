@@ -11,15 +11,15 @@ use std::fs::File;
 use std::io::Read;
 use std::io::Write;
 
-pub struct KeybindingsConfig {
-    filename: String,
+pub struct KeybindingsConfig<'c> {
+    filename: &'c str,
     data: HashMap<String, String>,
 }
 
-impl Config for KeybindingsConfig {
+impl<'c> Config<'c> for KeybindingsConfig<'c> {
     
-    fn new(filename: String) -> Self {
-        match File::open(filename.clone()) {
+    fn new(filename: &'c str) -> Self {
+        match File::open(filename) {
             Ok(mut file) => {
                 file.lock_exclusive().unwrap();
                 let mut contents = String::new();
@@ -45,14 +45,14 @@ impl Config for KeybindingsConfig {
         }
     }
 
-    fn get(&self, key: String) -> Option<String> {
-        match self.data.get(&key) {
+    fn get(&self, key: &str) -> Option<String> {
+        match self.data.get(key) {
             Some(value) => Some(value.to_owned()),
             None => None,
         }
     }
 
-    fn get_key_from_value(&self, value: String) -> Option<String> {
+    fn get_key_from_value(&self, value: &str) -> Option<String> {
         for (key, val) in self.data.iter() {
             if val.to_string() == value {
                 return Some(key.to_string());
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn file_not_created() {
-        let mut config = KeybindingsConfig::new(String::from("keybindings_config.yaml"));
+        let mut config = KeybindingsConfig::new("keybindings_config.yaml");
         let mut sample_config_data = HashMap::new();
         sample_config_data.insert(String::from("key1"), String::from("value1"));
         sample_config_data.insert(String::from("key2"), String::from("value2"));
@@ -95,17 +95,17 @@ mod tests {
         sample_config_data.insert(String::from("key4"), String::from("value4"));
         sample_config_data.insert(String::from("key5"), String::from("value5"));
         config.set(sample_config_data.clone());
-        assert_eq!(config.get(String::from("key1")), Some(String::from("value1")));
-        assert_eq!(config.get(String::from("key2")), Some(String::from("value2")));
-        assert_eq!(config.get(String::from("key3")), Some(String::from("value3")));
-        assert_eq!(config.get(String::from("key4")), Some(String::from("value4")));
-        assert_eq!(config.get(String::from("key5")), Some(String::from("value5")));
-        assert_eq!(config.get_key_from_value(String::from("value5")), Some(String::from("key5")));
+        assert_eq!(config.get("key1"), Some(String::from("value1")));
+        assert_eq!(config.get("key2"), Some(String::from("value2")));
+        assert_eq!(config.get("key3"), Some(String::from("value3")));
+        assert_eq!(config.get("key4"), Some(String::from("value4")));
+        assert_eq!(config.get("key5"), Some(String::from("value5")));
+        assert_eq!(config.get_key_from_value("value5"), Some(String::from("key5")));
     }
 
     #[test]
     fn with_file_created() {
-        let mut setup_config = KeybindingsConfig::new(String::from("keybindings_config.yaml"));
+        let mut setup_config = KeybindingsConfig::new("keybindings_config.yaml");
         let mut sample_config_data = HashMap::new();
         sample_config_data.insert(String::from("key1"), String::from("value1"));
         sample_config_data.insert(String::from("key2"), String::from("value2"));
@@ -115,13 +115,13 @@ mod tests {
         setup_config.set(sample_config_data.clone());
         assert!(setup_config.save().is_ok());
 
-        let config = KeybindingsConfig::new(String::from("keybindings_config.yaml"));
-        assert_eq!(config.get(String::from("key1")), Some(String::from("value1")));
-        assert_eq!(config.get(String::from("key2")), Some(String::from("value2")));
-        assert_eq!(config.get(String::from("key3")), Some(String::from("value3")));
-        assert_eq!(config.get(String::from("key4")), Some(String::from("value4")));
-        assert_eq!(config.get(String::from("key5")), Some(String::from("value5")));
-        assert_eq!(config.get_key_from_value(String::from("value5")), Some(String::from("key5")));
+        let config = KeybindingsConfig::new("keybindings_config.yaml");
+        assert_eq!(config.get("key1"), Some(String::from("value1")));
+        assert_eq!(config.get("key2"), Some(String::from("value2")));
+        assert_eq!(config.get("key3"), Some(String::from("value3")));
+        assert_eq!(config.get("key4"), Some(String::from("value4")));
+        assert_eq!(config.get("key5"), Some(String::from("value5")));
+        assert_eq!(config.get_key_from_value("value5"), Some(String::from("key5")));
         assert!(remove_file("keybindings_config.yaml").is_ok());
     }
 
