@@ -15,17 +15,19 @@ pub struct KeybindingsConfig<'c> {
 
 impl<'c> Config<'c> for KeybindingsConfig<'c> {
     
-    fn new(filename: &'c str) -> Self {
+    fn new(filename: &'c str) -> Result<Self, Error> {
         match File::open(filename) {
             Ok(mut file) => {
-                file.lock_exclusive().unwrap();
+                file.lock_exclusive()
+                    .map_err(|_e| Error::new(ErrorKind::Other, "Trouble locking file"))?;
                 let mut contents = String::new();
                 file.read_to_string(&mut contents).expect("Something went wrong while reading the file");
-                file.unlock().unwrap();
-                return KeybindingsConfig {
+                file.unlock()
+                    .map_err(|_e| Error::new(ErrorKind::Other, "Trouble locking file"))?;
+                Ok(KeybindingsConfig {
                     filename: filename,
                     data: serde_yaml::from_str(&contents).unwrap(),
-                }
+                })
             }
             Err(_e) =>  {
                 let mut data = HashMap::new();
@@ -34,10 +36,10 @@ impl<'c> Config<'c> for KeybindingsConfig<'c> {
                 data.insert(String::from("next-option"), String::from("DOWN"));
                 data.insert(String::from("execute-primary-action"), String::from("RETURN"));
                 data.insert(String::from("execute-secondary-action"), String::from("ALT + RETURN"));
-                return KeybindingsConfig {
+                Ok(KeybindingsConfig {
                     filename: filename,
                     data: data,
-                }
+                })
             }
         }
     }
@@ -63,12 +65,15 @@ impl<'c> Config<'c> for KeybindingsConfig<'c> {
     }
     
     fn save(&self) -> Result<(), Error> {
-        let serialized = serde_yaml::to_string(&self.data).unwrap();
-        let mut file = File::create(self.filename.clone()).unwrap();
-        file.lock_exclusive().unwrap();
-        if file.write_all(serialized.as_bytes()).is_err() {
-            return Err(Error::new(ErrorKind::Other, "Trouble saving to file"));
-        }
+        let serialized = serde_yaml::to_string(&self.data)
+            .map_err(|_e| Error::new(ErrorKind::Other, "Trouble serializing"))?;
+        let mut file = File::create(self.filename.clone())?;
+        file.lock_exclusive()
+            .map_err(|_e| Error::new(ErrorKind::Other, "Trouble locking file"))?;
+        file.write_all(serialized.as_bytes())
+            .map_err(|_e| Error::new(ErrorKind::Other, "Trouble saving to file"))?;
+        file.unlock()
+            .map_err(|_e| Error::new(ErrorKind::Other, "Trouble unlocking file"))?;
         Ok(())
     }
 
@@ -84,7 +89,9 @@ mod tests {
 
     #[test]
     fn file_not_created() {
-        let mut config = KeybindingsConfig::new("keybindings_config.yaml");
+        let wrapped_config = KeybindingsConfig::new("keybindings_config.yaml");
+        assert!(wrapped_config.is_ok());
+        let mut config = wrapped_config.unwrap();
         let mut sample_config_data = HashMap::new();
         sample_config_data.insert(String::from("key1"), String::from("value1"));
         sample_config_data.insert(String::from("key2"), String::from("value2"));
@@ -102,7 +109,9 @@ mod tests {
 
     #[test]
     fn with_file_created() {
-        let mut setup_config = KeybindingsConfig::new("keybindings_config.yaml");
+        let wrapped_setup_config = KeybindingsConfig::new("keybindings_config.yaml");
+        assert!(wrapped_setup_config.is_ok());
+        let mut setup_config = wrapped_setup_config.unwrap();
         let mut sample_config_data = HashMap::new();
         sample_config_data.insert(String::from("key1"), String::from("value1"));
         sample_config_data.insert(String::from("key2"), String::from("value2"));
@@ -112,7 +121,9 @@ mod tests {
         setup_config.set(sample_config_data.clone());
         assert!(setup_config.save().is_ok());
 
-        let config = KeybindingsConfig::new("keybindings_config.yaml");
+        let wrapped_config = KeybindingsConfig::new("keybindings_config.yaml");
+        assert!(wrapped_config.is_ok());
+        let config = wrapped_config.unwrap();
         assert_eq!(config.get("key1"), Some(String::from("value1")));
         assert_eq!(config.get("key2"), Some(String::from("value2")));
         assert_eq!(config.get("key3"), Some(String::from("value3")));
