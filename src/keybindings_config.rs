@@ -35,7 +35,7 @@ impl<'c> Config<'c> for KeybindingsConfig<'c> {
                 data.insert(String::from("previous-option"), String::from("UP"));
                 data.insert(String::from("next-option"), String::from("DOWN"));
                 data.insert(String::from("execute-primary-action"), String::from("RETURN"));
-                data.insert(String::from("execute-secondary-action"), String::from("ALT + RETURN"));
+                data.insert(String::from("execute-secondary-action"), String::from("Alt + RETURN"));
                 Ok(KeybindingsConfig {
                     filename: filename,
                     data: data,
@@ -131,6 +131,15 @@ mod tests {
         assert_eq!(config.get("key5"), Some(String::from("value5")));
         assert_eq!(config.get_key_from_value("value5"), Some(String::from("key5")));
         assert!(remove_file("keybindings_config.yaml").is_ok());
+    }
+
+    #[test]
+    fn with_file_not_created_and_valid_bindings() {
+        let wrapped_config = KeybindingsConfig::new("with_file_not_created_and_valid_bindings.yaml");
+        assert!(wrapped_config.is_ok());
+        let config = wrapped_config.unwrap();
+        assert_eq!(config.get_key_from_value("Alt + RETURN"),
+                   Some(String::from("execute-secondary-action")));
     }
 
 }
